@@ -1,0 +1,68 @@
+name: No Bad Practices Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PYTHON_VERSION: '3.10'
+  VENV_DIR: '.venv'
+  REQUIREMENTS_PATH: 'test_app/requirements.txt'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m venv ${{ env.VENV_DIR }}
+          source ${{ env.VENV_DIR }}/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r ${{ env.REQUIREMENTS_PATH }}
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv ${{ env.VENV_DIR }}
+          source ${{ env.VENV_DIR }}/bin/activate
+
+      - name: Install dependencies
+        run: |
+          source ${{ env.VENV_DIR }}/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r ${{ env.REQUIREMENTS_PATH }}
+
+      - name: Run tests
+        run: |
+          source ${{ env.VENV_DIR }}/bin/activate
+          pytest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Fake deploy
+        run: |
+          echo "Deploy..."
+          echo "Code has been tested and passed all checks."
+          echo "Deployment simulation successful."
